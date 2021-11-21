@@ -42,7 +42,7 @@ npm i dotenv express mongoose jsonwebtoken bcrypt express-session nodemon passpo
 * To run the server
 ```
 npm start
-
+```
 
 
 ## Help
