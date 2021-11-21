@@ -18,6 +18,14 @@ app.use(express.json());
     //EXERCISE ROUTE
     const exerciseRoute = require('./routes/Exercises');
     app.use('/exercises', exerciseRoute);
+    
+    //FACEBOOK_API_ROUTE
+    const facebookAPIROUTE = require('./routes/FacebookApi');
+    app.use('/fbapi',facebookAPIROUTE);
+
+
+    //WELCOME ROUTE
+   
 
 
 //ROUTES
