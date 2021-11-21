@@ -26,6 +26,11 @@ const UserSchema = mongoose.Schema({
     bodyPart: {
         type: String,
         required: true
+    },
+
+    isFavourite: {
+        type: Boolean,
+        required: false,
     }
 
 

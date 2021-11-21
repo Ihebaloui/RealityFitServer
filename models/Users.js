@@ -21,7 +21,35 @@ const UserSchema = mongoose.Schema({
     },
     gender: {
         type: String,
-        required: true
+        required: false
+    },
+
+    age: {
+        type: Number,
+        required: false
+    },
+    weight: {
+        type: Number,
+        required: false,
+    },
+
+    height: {
+        type: Number,
+        required: false
+    },
+
+    experience: {
+        type: String,
+        required: false
+    },
+
+    goal: {
+        type: String,
+        required: false
+    },
+
+    token: {
+        type: String
     }
 
 
