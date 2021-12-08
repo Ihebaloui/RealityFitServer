@@ -6,17 +6,21 @@ const UserSchema = mongoose.Schema({
         type: String,
         required: true
     },
+    image: {
+        type: String,
+        required: true
+    },
 
     sets: {
-        type: Number,
+        type: String,
         required: true
     },
     reps: {
-        type: Number,
+        type: String,
         required: true
     },
     duration: {
-        type: Number,
+        type: String,
         required: true
     },
     description: {

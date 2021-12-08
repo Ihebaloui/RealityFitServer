@@ -11,17 +11,17 @@ const facebookStrategy = require('passport-facebook').Strategy
 
 //FACEBOOK LOGIN/////
 
-router.use(passport.initialize)
+//router.use(passport.initialize)
 
-router.use(passport.session)
-router.use(session({secret:"thisissecretkey"}))
+//router.use(passport.session)
+//router.use(session({secret:"thisissecretkey"}))
 
     //facebook strategy
     passport.use(new facebookStrategy({
 
       // pull in our app id and secret from our auth.js file
-      clientID        : "945692233040516",
-      clientSecret    : "febba9487b84b443e34ff93a417668e0",
+      clientID        : "4635572299892350",
+      clientSecret    : "acf5b38a52a4bbb91c0630d319455618",
       callbackURL     : "http://localhost:3000/facebook/callback"
   
   },// facebook will send back the token and profile

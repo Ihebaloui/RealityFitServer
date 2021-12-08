@@ -1,8 +1,28 @@
 const express = require('express');
 const Exercises = require('../models/Exercises');
 const Exercise = require('../models/Exercises');
-
 const router = express.Router();
+const multer = require('multer')
+const path = require('path')
+
+
+const storage = multer.diskStorage({
+      destination(req,file, cb){
+          cb(null,'uploads/')
+      },
+      filename(req,file,cb){
+          cb(null,`${file.fildname}-${Date.now()}${path.extname(file.originalname)}`)
+      }
+  })
+  const fileFilter = (req,file,cb)=>{
+        if(file.mimetype==='image/jpeg' || file.mimetype ===  'image/jpg'){
+              cb(null,true);
+        }else{
+              cb(null,false);
+        }
+  }
+  const upload = multer({storage: storage,fileFilter: fileFilter
+      })
 
 
 //DISPLAY ALL
@@ -35,14 +55,15 @@ router.get('/:exerciseID', async (req, res) => {
 
 //ADD EXERCISE
 
-router.post('/add', (req,res) => {
+router.post('/add',upload.single('image'), (req,res) => {
     const exercise = new Exercise ({
         nom: req.body.nom,
         sets: req.body.sets,
         reps: req.body.reps,
         duration: req.body.duration,
         description: req.body.description,
-        bodyPart: req.body.bodyPart
+        bodyPart: req.body.bodyPart,
+        image: req.file.path
     
     });
     exercise.save()

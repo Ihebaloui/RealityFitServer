@@ -29,12 +29,12 @@ const UserSchema = mongoose.Schema({
         required: false
     },
     weight: {
-        type: Number,
+        type: String,
         required: false,
     },
 
     height: {
-        type: Number,
+        type: String,
         required: false
     },
 
@@ -50,7 +50,21 @@ const UserSchema = mongoose.Schema({
 
     token: {
         type: String
+    },
+    resetLink:{
+        data:String,
+        default:''
+    },
+    emailToken: {
+        type: String,
+    },
+    isVerified: {
+        type: Boolean,
     }
+
+
+
+    
 
 
 });

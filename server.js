@@ -2,12 +2,31 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 require ('dotenv/config');
-
+const session = require("express-session");
+const passport = require('passport')
+const cookieparser = require('cookie-parser')
 const app = express();
 
+
+
+
+
+
 //MIDDLEWARES
+//app.use(passport.session());
+//app.use(passport.initialize());
+
+//app.use(session({secret: "thisissecretkey"}));
+
+
+app.use(cookieparser());
+
+
+
 app.use(express.urlencoded({extended: true}));
 app.use(express.json());
+
+
 
 //IMPORT ROUTES
 
@@ -24,6 +43,7 @@ app.use(express.json());
     app.use('/fbapi',facebookAPIROUTE);
 
 
+
     //WELCOME ROUTE
    
 
@@ -36,6 +56,7 @@ app.get('/',(req, res) => {
 );
 
 
+app.use('/uploads',express.static('uploads'))
 
 //CONNECT TO DB
 mongoose.connect(process.env.DB_CONNECTION, () => console.log('Connected to DB!'));
