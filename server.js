@@ -41,6 +41,10 @@ app.use(express.json());
     //FACEBOOK_API_ROUTE
     const facebookAPIROUTE = require('./routes/FacebookApi');
     app.use('/fbapi',facebookAPIROUTE);
+    //PLAN ROUTE
+
+    const planRoute = require('./routes/Plans');
+    app.use('/plan', planRoute);
 
 
 

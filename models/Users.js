@@ -19,6 +19,10 @@ const UserSchema = mongoose.Schema({
         type: String,
         required: true
     },
+    image: {
+        type: String,
+        required: false
+    },
     gender: {
         type: String,
         required: false
@@ -55,7 +59,7 @@ const UserSchema = mongoose.Schema({
         data:String,
         default:''
     },
-    emailToken: {
+    verifCode: {
         type: String,
     },
     isVerified: {

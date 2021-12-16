@@ -1,4 +1,6 @@
 const mongoose = require('mongoose');
+const {ObjectId} = mongoose.Schema.Types
+
 
 const UserSchema = mongoose.Schema({
 
@@ -35,7 +37,13 @@ const UserSchema = mongoose.Schema({
     isFavourite: {
         type: Boolean,
         required: false,
-    }
+    },
+
+
+   comments:[{
+       text: String,
+       postedBy: {type:String ,  ref:"user"}
+   }]
 
 
 });

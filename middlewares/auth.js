@@ -34,4 +34,4 @@ const verifyEmail = async(req, res, next)=>{
   }
 }
 
-module.exports = verifyEmail, verifyToken;
+module.exports =  verifyToken;

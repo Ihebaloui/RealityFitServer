@@ -4,6 +4,7 @@ const Exercise = require('../models/Exercises');
 const router = express.Router();
 const multer = require('multer')
 const path = require('path')
+const auth = require('../middlewares/auth')
 
 
 const storage = multer.diskStorage({
@@ -25,6 +26,45 @@ const storage = multer.diskStorage({
       })
 
 
+
+      router.get('/displayPlan', async (req, res) => {
+
+        try{
+            const Plans = await Exercise.find().select('nom bodyPart image -_id');
+            res.json(Plans);
+    
+        }catch(err){
+            res.json({message:err})
+        }
+        
+    });
+
+
+
+    router.get('/comments/:exerciseID', async (req, res) => {
+
+        try{
+            const exercises = await Exercise.findById(req.params.exerciseID).select('comments');
+            res.status(201).json(exercises);
+    
+        }catch(err){
+            res.json({message:err})
+        }
+        
+    });
+
+
+ router.post('/deletecomments/:exerciseID', async (req, res) => {
+
+        try{
+            const exercises = await Exercise.findById(req.params.exerciseID).deleteMany(Exercise.comments)
+            res.json(exercises);
+    
+        }catch(err){
+            res.json({message:err})
+        }
+        
+    });
 //DISPLAY ALL
 
 router.get('/display', async (req, res) => {
@@ -104,6 +144,28 @@ router.patch('/:exerciseID', async (req, res) => {
 
 });
 
+//Comments
+router.put('/comment',auth,async (req,res)=>{
+    try{
+    const comment = {
+        text:req.body.text,
+        postedBy:req.user.prenom
+    }
+   await Exercise.findByIdAndUpdate(req.body.exerciseID,{
+        $push:{comments:comment}
+    },{
+        new:true
+    })
+    .populate("comments.postedBy","_id prenom")
+    res.json({
+        message: "jawek behy"
+    })
+
+}catch(err){
+    res.json({message:err});
+}
+  
+})
 
 
 

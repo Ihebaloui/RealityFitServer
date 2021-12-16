@@ -13,10 +13,32 @@ const DOMAIN = 'sandbox727ad003dcf34021b8c00b4d70e73ade.mailgun.org';
 const mg = mailgun({apiKey:apikeyM , domain: DOMAIN});
 const nodemailer = require('nodemailer')
 const crypto = require('crypto')
-const { verifyEmail } = require('../middlewares/auth')
+const multer = require('multer')
+const path = require('path')
 
 
 
+
+
+
+
+const storage = multer.diskStorage({
+  destination(req,file, cb){
+      cb(null,'uploads/')
+  },
+  filename(req,file,cb){
+      cb(null,`${file.fildname}-${Date.now()}${path.extname(file.originalname)}`)
+  }
+})
+const fileFilter = (req,file,cb)=>{
+    if(file.mimetype==='image/jpeg' || file.mimetype ===  'image/jpg'){
+          cb(null,true);
+    }else{
+          cb(null,false);
+    }
+}
+const upload = multer({storage: storage,fileFilter: fileFilter
+  })
 
 
 
@@ -113,7 +135,7 @@ router.post("/register", async (req, res) => {
       const { prenom, nom, email, password } = req.body;
   
       // Validate user input
-      if (!(email && password && prenom && nom)) {
+      if (!(email && password && prenom && nom )) {
         res.status(400).send("All input is required");
       }
   
@@ -134,14 +156,16 @@ router.post("/register", async (req, res) => {
         nom,
         email: email.toLowerCase(), // sanitize: convert email to lowercase
         password: encryptedPassword,
-        emailToken: crypto.randomBytes(64).toString('hex'),
-        isVerified: false
+        verifCode: Math.floor(100000 + Math.random() * 900000),
+        isVerified: false,
+       // image: req.file.path
+
         
       });
   
       // Create token
       const token = jwt.sign(
-        { user_id: user._id, email },
+        { user_id: user._id, email, nom, prenom },
         process.env.TOKEN_KEY,
         {
           expiresIn: "2h",
@@ -154,10 +178,12 @@ router.post("/register", async (req, res) => {
         from: '"RealityFit" <mohamediheb.aloui@esprit.tn>',
         to: user.email,
         subject: 'RealityFit - verify your email',
-        html:  ` <h2> ${user.nom}! thanks for registering on our App </h2>
-            <h4> please verify your mail to continue </h4>
-            <a href="http://${req.headers.host}/users/verify-email?token=${user.emailToken}">Verify your email</a>
+        html:  ` <h2> hi ${user.nom}! thanks for registering on our App , this is your verification code</h2>
+            <h4> ${user.verifCode } </h4>
+
+           
         `
+        //<a href="http://${req.headers.host}/users/verify-email?token=${user.emailToken}">Verify your email</a>
       }
 
       transporter.sendMail(mailOptions, function(error, info){
@@ -170,26 +196,35 @@ router.post("/register", async (req, res) => {
   
       // return new user
       res.status(201).json(user);
+      
     } catch (err) {
       console.log(err);
     }
     // Our register logic ends here
   });
+  router.patch('/verify-email/:userID', async(req, res)=>{
 
-
-  router.get('/verify-email', async(req, res)=>{
     try {
-
-      const token = req.query.token
-      const user = await User.findOne({emailToken: token})
-      console.log(token)
-      if(user){
-        user.emailToken = null
+     const user = await  User.findById(req.params.userID);
+      const verifCode = req.body.verifCode
+      console.log(req.body.verifCode)
+      console.log(user.verifCode)
+      
+      if(user.verifCode == verifCode){
+        user.verifCode = null
         user.isVerified = true
         await user.save()
+        .then(data => {
+          res.status(201).json(data);
+         
+      })
       //  res.redirect('/login')
       }else{
-        res.redirect('/register')
+        
+        res.status(400).send("All input is required");
+        
+
+       // res.redirect('/register')
         console.log('email is not verified')
       }
       
@@ -198,6 +233,8 @@ router.post("/register", async (req, res) => {
       
     }
   })
+
+  
 
 
 
@@ -213,8 +250,7 @@ router.post('/login', async (req,res) => {
         }
         // Validate if user exist in our database
         const user = await User.findOne({ email });
-    
-        if (user && (await bcrypt.compare(password, user.password))) {
+        if (user && (await bcrypt.compare(password, user.password)) && user.isVerified == true) {
           // Create token
           const token = jwt.sign(
             { user_id: user._id, email },
@@ -230,7 +266,7 @@ router.post('/login', async (req,res) => {
           // user
           res.status(200).json(user);
         }
-        res.status(400).send("Invalid Credentials");
+        res.status(400).send("Invalid Credentials or you need to check your email for verification");
       } catch (err) {
         console.log(err);
       }
@@ -243,10 +279,10 @@ router.post('/login', async (req,res) => {
 
 
 //DELETE USER
-router.delete('/:userID', async (req, res) => {
+router.delete('/delete', async (req, res) => {
     try{
-
-        const user = await User.remove({ _id: req.params.userID});
+ User.remove(this.all)
+      //  const user = await User.remove({ _id: req.params.userID});
         res.json(user);
 
     }catch (err){
@@ -258,16 +294,19 @@ router.delete('/:userID', async (req, res) => {
 //UPDATE
 
 router.patch('/:userID', async (req, res) => {
+  encryptedPassword = await bcrypt.hash(req.body.password, 10);
+
     try{
 
         const user = await User.updateOne({ _id: req.params.userID}, { $set: {
           nom: req.body.nom,
           prenom: req.body.prenom,
           email: req.body.email,
-          password: req.body.password
+          password: encryptedPassword
         }});
 
-        res.json(user);
+        res.status(201).json(user);
+        
 
     }catch (err){
         res.json({message:err});
