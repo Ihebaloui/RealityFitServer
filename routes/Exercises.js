@@ -41,6 +41,7 @@ const storage = multer.diskStorage({
 
 
 
+
     router.get('/comments/:exerciseID', async (req, res) => {
 
         try{
@@ -54,10 +55,33 @@ const storage = multer.diskStorage({
     });
 
 
+    /**
+  * @swagger
+ * /exercises/comments/{exerciseID}/:
+ *   description: get exercise comments
+ *   get:
+ *     parameters:
+ *       - in: path
+ *         name: exerciseID
+ *         type: string
+ *     summary:  get exercise comments
+ *     tags: [excercises]
+*     responses:
+ *       201:
+ *         description: The list utilisateurs
+ *         content:
+ *           application/json:
+ *       400:
+ *         description: utilisateur error
+ */
+
+
+
  router.post('/deletecomments/:exerciseID', async (req, res) => {
 
         try{
-            const exercises = await Exercise.findById(req.params.exerciseID).deleteMany(Exercise.comments)
+            const exercises = await Exercise.findById(req.params.exerciseID).select('comments')
+     
             res.json(exercises);
     
         }catch(err){
@@ -93,6 +117,161 @@ router.get('/:exerciseID', async (req, res) => {
     
 });
 
+
+  /**
+  * @swagger
+ * /exercises/{exerciseID}/:
+ *   description: Specific excercise Displays
+ *   get:
+ *     summary: Returns a list of not Bought plans
+ *     tags: [excercises]
+ *     parameters:
+ *       - in: path
+ *         name: exerciseID
+ *         type: string
+*     responses:
+ *       201:
+ *         description: The list utilisateurs
+ *         content:
+ *           application/json:
+ *       400:
+ *         description: utilisateur error
+ */
+
+ /**
+  * @swagger
+ * /exercises/display/:
+ *   description: Specific excercise Displays
+ *   get:
+ *     summary: Returns a list of not Bought plans
+ *     tags: [excercises]
+*     responses:
+ *       201:
+ *         description: The list utilisateurs
+ *         content:
+ *           application/json:
+ *       400:
+ *         description: utilisateur error
+ */
+
+
+
+
+router.patch('/markasfavourite/:exerciseID', async (req, res) => {
+    try{
+
+        const exercise = await Exercises.findById(req.params.exerciseID)
+        exercise.isFavourite = true
+           
+
+
+        await exercise.save()
+        .then(data => {
+          res.status(201).json(data);
+         
+      })
+
+    }catch (err){
+        res.json({message:err});
+    }
+
+});
+router.patch('/unmarkasfavourite/:exerciseID', async (req, res) => {
+    try{
+
+        const exercise = await Exercises.findById(req.params.exerciseID)
+        exercise.isFavourite = false
+           
+
+        
+        await exercise.save()
+        .then(data => {
+          res.status(201).json(data);
+         
+      })
+
+    }catch (err){
+        res.json({message:err});
+    }
+
+});
+
+/**
+  * @swagger
+ * /markasfavourite/{exerciseID}/:
+ *   description: Specific excercise Displays
+ *   patch:
+ *     summary: mark an exercise as a favourite
+ *     tags: [excercises]
+*     responses:
+ *       201:
+ *         description: The list utilisateurs
+ *         content:
+ *           application/json:
+ *       400:
+ *         description: utilisateur error
+ */
+
+/**
+  * @swagger
+ * /unmarkasfavourite/{exerciseID}/:
+ *   description: Specific excercise Displays
+ *   patch:
+ *     summary: mark an exercise as a favourite
+ *     tags: [excercises]
+*     responses:
+ *       201:
+ *         description: The list utilisateurs
+ *         content:
+ *           application/json:
+ *       400:
+ *         description: utilisateur error
+ */
+
+
+
+
+
+/**
+  * @swagger
+ * /exercises/add/:
+ *   description: ADD A PLAN
+ *   post:
+ *     summary: Returns a message of success
+ *     consumes:
+ *       - multipart/form-data
+ *     tags: [plans]
+ *     parameters:
+ *       - in: body
+ *         name: nom
+ *         type: string
+ *       - in: body
+ *         name: sets
+ *         type: string
+ *       - in: body
+ *         name: reps
+ *         type: string
+ *       - in: body
+ *         name: duration
+ *         type: string
+ *       - in: body
+ *         name: description
+ *         type: string
+ *       - in: body
+ *         name: bodyPart
+ *         type: string
+*     responses:
+ *       200:
+ *         description: The list utilisateurs
+ *         content:
+ *           application/json:
+ *       400:
+ *         description: utilisateur error
+ */
+
+
+
+
 //ADD EXERCISE
 
 router.post('/add',upload.single('image'), (req,res) => {
@@ -103,7 +282,8 @@ router.post('/add',upload.single('image'), (req,res) => {
         duration: req.body.duration,
         description: req.body.description,
         bodyPart: req.body.bodyPart,
-        image: req.file.path
+        image: req.file.path,
+        isFavourite: false
     
     });
     exercise.save()
@@ -149,7 +329,8 @@ router.put('/comment',auth,async (req,res)=>{
     try{
     const comment = {
         text:req.body.text,
-        postedBy:req.user.prenom
+        postedBy:req.user.prenom +" "+ req.user.nom,
+        image: req.user.image
     }
    await Exercise.findByIdAndUpdate(req.body.exerciseID,{
         $push:{comments:comment}
@@ -157,18 +338,13 @@ router.put('/comment',auth,async (req,res)=>{
         new:true
     })
     .populate("comments.postedBy","_id prenom")
-    res.json({
-        message: "jawek behy"
-    })
+    res.status(201).json(comment)
 
 }catch(err){
     res.json({message:err});
 }
   
 })
-
-
-
 
 
 module.exports = router;

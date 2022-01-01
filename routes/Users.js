@@ -54,13 +54,33 @@ router.get('/display', async (req, res) => {
 
     try{
         const users = await User.find();
-        res.json(users);
+        res.status(200).json(users);
 
     }catch(err){
-        res.json({message:err})
+        res.status(400).json({message:err})
     }
     
 });
+
+
+
+
+ /**
+  * @swagger
+ * /users/display:
+ *   description: The utilisateurs managing API
+ *   get:
+ *     summary: Returns the list of all the utilisateurs
+ *     tags: [Users]
+*     responses:
+ *       200:
+ *         description: The list utilisateurs
+ *         content:
+ *           application/json:
+ *       400:
+ *         description: utilisateur error
+ */
+
 
 //DISPLAY BY ID
 
@@ -127,7 +147,7 @@ router.post('/add', async (req,res) => {
 
 //REGISTER
 
-router.post("/register", async (req, res) => {
+router.post("/register",upload.single('image'), async (req, res) => {
 
     // Our register logic starts here
     try {
@@ -158,7 +178,7 @@ router.post("/register", async (req, res) => {
         password: encryptedPassword,
         verifCode: Math.floor(100000 + Math.random() * 900000),
         isVerified: false,
-       // image: req.file.path
+        image: req.file.path
 
         
       });
@@ -202,6 +222,42 @@ router.post("/register", async (req, res) => {
     }
     // Our register logic ends here
   });
+
+
+/**
+  * @swagger
+ * /users/register/:
+ *   description: user Registration
+ *   post:
+ *     summary: Returns a message of success
+ *     tags: [Users]
+ *     parameters:
+ *       - in: body
+ *         name: nom
+ *         type: string
+ *       - in: body
+ *         name: prenom
+ *         type: string
+ *       - in: body
+ *         name: email
+ *         type: string
+ *       - in: body
+ *         name: password
+ *         type: string
+*     responses:
+ *       200:
+ *         description: The list utilisateurs
+ *         content:
+ *           application/json:
+ *       400:
+ *         description: utilisateur error
+ */
+
+
+
+
+
+
   router.patch('/verify-email/:userID', async(req, res)=>{
 
     try {
@@ -234,6 +290,36 @@ router.post("/register", async (req, res) => {
     }
   })
 
+  /**
+  * @swagger
+ * /users/register/:
+ *   description: user Registration
+ *   post:
+ *     summary: Returns a message of success
+ *     tags: [Users]
+ *     parameters:
+ *       - in: body
+ *         name: nom
+ *         type: string
+ *       - in: body
+ *         name: prenom
+ *         type: string
+ *       - in: body
+ *         name: email
+ *         type: string
+ *       - in: body
+ *         name: password
+ *         type: string
+*     responses:
+ *       200:
+ *         description: The list utilisateurs
+ *         content:
+ *           application/json:
+ *       400:
+ *         description: utilisateur error
+ */
+
+
   
 
 
@@ -253,7 +339,7 @@ router.post('/login', async (req,res) => {
         if (user && (await bcrypt.compare(password, user.password)) && user.isVerified == true) {
           // Create token
           const token = jwt.sign(
-            { user_id: user._id, email },
+            { user_id: user._id, email, nom: user.nom, prenom: user.prenom, image: user.image},
             process.env.TOKEN_KEY,
             {
               expiresIn: "2h",
@@ -273,6 +359,30 @@ router.post('/login', async (req,res) => {
 
 
 });
+
+
+/**
+  * @swagger
+ * /users/login/:
+ *   description: user Login
+ *   post:
+ *     summary: Returns a message of success
+ *     tags: [Users]
+ *     parameters:
+ *       - in: body
+ *         name: email
+ *         type: string
+ *       - in: body
+ *         name: password
+ *         type: string
+*     responses:
+ *       200:
+ *         description: The list utilisateurs
+ *         content:
+ *           application/json:
+ *       400:
+ *         description: utilisateur error
+ */
 
 
 
@@ -296,6 +406,7 @@ router.delete('/delete', async (req, res) => {
 router.patch('/:userID', async (req, res) => {
   encryptedPassword = await bcrypt.hash(req.body.password, 10);
 
+  print(req.body.password)
     try{
 
         const user = await User.updateOne({ _id: req.params.userID}, { $set: {
@@ -304,7 +415,7 @@ router.patch('/:userID', async (req, res) => {
           email: req.body.email,
           password: encryptedPassword
         }});
-
+        print(req.body.password)
         res.status(201).json(user);
         
 
@@ -313,6 +424,41 @@ router.patch('/:userID', async (req, res) => {
     }
 
 });
+
+
+
+/**
+  * @swagger
+ * /users/{userID}/:
+ *   description: user Registration
+ *   patch:
+ *     summary: Returns a message of success
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: userID
+ *         type: string
+ *       - in: body
+ *         name: nom
+ *         type: string
+ *       - in: body
+ *         name: prenom
+ *         type: string
+ *       - in: body
+ *         name: email
+ *         type: string
+ *       - in: body
+ *         name: password
+ *         type: string
+*     responses:
+ *       201:
+ *         description: The list utilisateurs
+ *         content:
+ *           application/json:
+ *       400:
+ *         description: utilisateur error
+ */
+
 
 
 router.put("/forgotpassword", (req,res) => {

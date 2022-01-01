@@ -36,13 +36,19 @@ const UserSchema = mongoose.Schema({
 
     isFavourite: {
         type: Boolean,
-        required: false,
+        
+    },
+    markedBy: {
+       
+        type:String ,  ref:"user"
+        
     },
 
 
    comments:[{
        text: String,
-       postedBy: {type:String ,  ref:"user"}
+       postedBy: {type:String ,  ref:"user"},
+       image: String
    }]
 
 

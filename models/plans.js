@@ -11,10 +11,39 @@ const PlanSchema = mongoose.Schema({
         required: true
     },
 
-    exercises_id:[{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Exercises'
-    }]
+    difficulty: {
+        type: String,
+        required: true
+    },
+    day1: {
+        type: String,
+        required: true
+    },
+
+    day2: {
+        type: String,
+        required: true
+    },
+    day3: {
+        type: String,
+        required: true
+    },
+    day4: {
+        type: String,
+        required: true
+    },
+    day5: {
+        type: String,
+        required: true
+    },
+    price: {
+        type: String,
+        required: true
+    },
+    isBought: {
+        type: Boolean,
+
+    }
 
 
 });
