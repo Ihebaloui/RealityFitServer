@@ -4,7 +4,8 @@ const Exercise = require('../models/Exercises');
 const router = express.Router();
 const multer = require('multer')
 const path = require('path')
-const auth = require('../middlewares/auth')
+const auth = require('../middlewares/auth');
+const plans = require('../models/plans');
 
 
 const storage = multer.diskStorage({
@@ -345,6 +346,20 @@ router.put('/comment',auth,async (req,res)=>{
 }
   
 })
+
+
+router.delete('/delete', async (req, res) => {
+    try{
+ Plans.remove(this.all)
+      //  const user = await User.remove({ _id: req.params.userID});
+        res.json(plans);
+
+    }catch (err){
+        res.json({message:err});
+    }
+
+});
+
 
 
 module.exports = router;

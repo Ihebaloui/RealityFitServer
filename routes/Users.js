@@ -14,7 +14,8 @@ const mg = mailgun({apiKey:apikeyM , domain: DOMAIN});
 const nodemailer = require('nodemailer')
 const crypto = require('crypto')
 const multer = require('multer')
-const path = require('path')
+const path = require('path');
+const Users = require('../models/Users');
 
 
 
@@ -406,7 +407,6 @@ router.delete('/delete', async (req, res) => {
 router.patch('/:userID', async (req, res) => {
   encryptedPassword = await bcrypt.hash(req.body.password, 10);
 
-  print(req.body.password)
     try{
 
         const user = await User.updateOne({ _id: req.params.userID}, { $set: {
@@ -415,7 +415,6 @@ router.patch('/:userID', async (req, res) => {
           email: req.body.email,
           password: encryptedPassword
         }});
-        print(req.body.password)
         res.status(201).json(user);
         
 
@@ -510,9 +509,6 @@ mg.messages().send(data, function(error, body ){
 })
 
 });
-
-
-
 
 
 
